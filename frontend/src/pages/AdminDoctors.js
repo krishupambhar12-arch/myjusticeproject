@@ -43,6 +43,11 @@ const AdminDoctors = () => {
   ];
 
   const token = localStorage.getItem('token');
+  const role = localStorage.getItem('role');
+  
+  console.log("🔍 Frontend Debug - Token exists:", !!token);
+  console.log("🔍 Frontend Debug - Role:", role);
+  console.log("🔍 Frontend Debug - Token:", token ? token.substring(0, 20) + "..." : "null");
 
   useEffect(() => {
     fetchDoctors();
@@ -57,6 +62,19 @@ const AdminDoctors = () => {
   const fetchDoctors = useCallback(async () => {
     setLoading(true);
     try {
+      // Check if user is authenticated as admin
+      if (!token) {
+        setMessage('Please login first');
+        setLoading(false);
+        return;
+      }
+      
+      if (role !== 'Admin') {
+        setMessage('Access denied. Admin privileges required.');
+        setLoading(false);
+        return;
+      }
+      
       const response = await fetch(API.ADMIN_CODES, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -73,7 +91,7 @@ const AdminDoctors = () => {
       setMessage('Error connecting to server');
     }
     setLoading(false);
-  }, [token]);
+  }, [token, role]);
 
   const validateForm = () => {
     const errors = {};
@@ -131,6 +149,20 @@ const AdminDoctors = () => {
 
   const handleAddDoctor = async (e) => {
     e.preventDefault();
+    
+    console.log("🔍 Add Attorney Debug - Token:", token ? token.substring(0, 20) + "..." : "null");
+    console.log("🔍 Add Attorney Debug - Role:", role);
+    
+    // Check if user is authenticated as admin
+    if (!token) {
+      setMessage('Please login first');
+      return;
+    }
+    
+    if (role !== 'Admin') {
+      setMessage('Access denied. Admin privileges required.');
+      return;
+    }
     
     if (!validateForm()) {
       setMessage('Please fix the errors in the form');
@@ -290,6 +322,14 @@ const AdminDoctors = () => {
     setShowAllDetailsModal(true);
   };
 
+  const handleReAuth = () => {
+    // Clear localStorage and redirect to login
+    localStorage.removeItem('token');
+    localStorage.removeItem('role');
+    localStorage.removeItem('user');
+    window.location.href = '/login';
+  };
+
   const handleCloseAllDetailsModal = () => {
     setShowAllDetailsModal(false);
   };
@@ -302,6 +342,14 @@ const AdminDoctors = () => {
           <div className="message">
             {message}
             <button onClick={() => setMessage('')}>×</button>
+            {(message.includes('Access denied') || message.includes('Please login')) && (
+              <button 
+                onClick={handleReAuth}
+                style={{ marginLeft: '10px', padding: '5px 10px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer' }}
+              >
+                Re-login
+              </button>
+            )}
           </div>
         )}
 

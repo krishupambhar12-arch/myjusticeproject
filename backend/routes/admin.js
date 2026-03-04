@@ -282,7 +282,11 @@ router.get("/codes", auth, async (req, res) => {
 // CREATE NEW CODE
 router.post("/codes", auth, async (req, res) => {
   try {
+    console.log("🔍 Admin Codes Debug - User role:", req.userRole);
+    console.log("🔍 Admin Codes Debug - Request body:", req.body);
+    
     if (req.userRole !== "Admin") {
+      console.log("❌ Access denied - User role:", req.userRole);
       return res.status(403).json({ message: "Only admins can create codes" });
     }
 

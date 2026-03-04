@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from "react";
 import Sidebar from "../components/AttorneySidebar";
 import "../styles/doctorDashboard.css";
-import "../styles/attorneyProfile.css";
 import { API } from "../config/api";
 
 const AttorneyDashboard = () => {
@@ -84,72 +83,7 @@ const AttorneyDashboard = () => {
           )}
         </div>
 
-        {/* Attorney Profile Details */}
-        {attorney && (
-          <div className="attorney-profile-card">
-            <h2>Attorney Profile Details</h2>
-            <div className="profile-grid">
-              <div className="profile-item">
-                <label>Name:</label>
-                <span>{attorney.name || 'N/A'}</span>
-              </div>
-              <div className="profile-item">
-                <label>Raw Name Debug:</label>
-                <span style={{fontSize: '12px', fontFamily: 'monospace'}}>"{attorney.name}"</span>
-              </div>
-              <div className="profile-item">
-                <label>Email:</label>
-                <span>{attorney.email || 'N/A'}</span>
-              </div>
-              <div className="profile-item">
-                <label>Phone:</label>
-                <span>{attorney.phone || 'N/A'}</span>
-              </div>
-              <div className="profile-item">
-                <label>Gender:</label>
-                <span>{attorney.gender || 'N/A'}</span>
-              </div>
-              <div className="profile-item">
-                <label>Address:</label>
-                <span>{attorney.address || 'N/A'}</span>
-              </div>
-              <div className="profile-item">
-                <label>Date of Birth:</label>
-                <span>{attorney.dateOfBirth ? new Date(attorney.dateOfBirth).toLocaleDateString() : 'N/A'}</span>
-              </div>
-              <div className="profile-item">
-                <label>Specialization:</label>
-                <span>{attorney.specialization || 'N/A'}</span>
-              </div>
-              <div className="profile-item">
-                <label>Qualification:</label>
-                <span>{attorney.qualification || 'N/A'}</span>
-              </div>
-              <div className="profile-item">
-                <label>Experience:</label>
-                <span>{attorney.experience || 0} years</span>
-              </div>
-              <div className="profile-item">
-                <label>Consultation Fees:</label>
-                <span>₹{attorney.fees || 0}</span>
-              </div>
-              {attorney.profile_pic && (
-                <div className="profile-item full-width">
-                  <label>Profile Picture:</label>
-                  <img 
-                    src={`http://localhost:5000/${attorney.profile_pic}`} 
-                    alt="Profile" 
-                    className="profile-image"
-                    onError={(e) => {
-                      e.target.src = 'https://via.placeholder.com/150';
-                    }}
-                  />
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
+        
         <div className="stats-cards">
           <div className="card">
             <h2>Total Users</h2>

@@ -9,9 +9,10 @@ const authMiddleware = (req, res, next) => {
     req.user = decoded;
     req.userId = decoded.id;
     req.userRole = decoded.role;
-    console.log(req.userRole);
+    console.log("🔍 Auth Debug - Token decoded:", { userId: decoded.id, userRole: decoded.role, email: decoded.email });
     next();
   } catch (error) {
+    console.error("❌ Token verification failed:", error.message);
     res.status(401).json({ message: "❌ Invalid token" });
   }
 };
