@@ -451,7 +451,14 @@ const ClientProfile = () => {
             </>
           )}
 
-          <div className="profile-actions">
+          <div className="profile-actions" style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'flex-start',
+            flexWrap: 'nowrap',
+            gap: '12px',
+            marginBottom: '15px'
+          }}>
             <button 
               className="edit-btn" 
               onClick={() => {
@@ -471,7 +478,6 @@ const ClientProfile = () => {
                 border: 'none',
                 borderRadius: '8px',
                 cursor: 'pointer',
-                marginRight: '12px',
                 fontSize: '14px',
                 fontWeight: 'bold',
                 boxShadow: edit ? '0 4px 8px rgba(220, 53, 69, 0.3)' : '0 4px 8px rgba(0, 123, 255, 0.3)',
@@ -480,30 +486,9 @@ const ClientProfile = () => {
             >
               {edit ? "Cancel Edit" : " Edit Profile"}
             </button>
-            {edit && (
-              <button 
-                className="save-btn" 
-                onClick={handleSave} 
-                disabled={saving}
-                style={{
-                  padding: '12px 24px',
-                  backgroundColor: saving ? '#6c757d' : '#28a745',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  cursor: saving ? 'not-allowed' : 'pointer',
-                  marginRight: '12px',
-                  fontSize: '14px',
-                  fontWeight: 'bold',
-                  boxShadow: '0 4px 8px rgba(40, 167, 69, 0.3)',
-                  transition: 'all 0.3s ease'
-                }}
-              >
-                {saving ? " Saving..." : " Save Changes"}
-              </button>
-            )}
-            <button
             
+            {/* Continue button - always visible and next to Edit Profile */}
+            <button
               className="continue-btn"
               onClick={handleContinue}
               style={{
@@ -521,6 +506,29 @@ const ClientProfile = () => {
             >
               Continue
             </button>
+            
+            {/* Save button - appears in edit mode */}
+            {edit && (
+              <button 
+                className="save-btn" 
+                onClick={handleSave} 
+                disabled={saving}
+                style={{
+                  padding: '12px 24px',
+                  backgroundColor: saving ? '#6c757d' : '#28a745',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: saving ? 'not-allowed' : 'pointer',
+                  fontSize: '14px',
+                  fontWeight: 'bold',
+                  boxShadow: '0 4px 8px rgba(40, 167, 69, 0.3)',
+                  transition: 'all 0.3s ease'
+                }}
+              >
+                {saving ? " Saving..." : " Save Changes"}
+              </button>
+            )}
           </div>
           
           <button
@@ -528,7 +536,7 @@ const ClientProfile = () => {
             onClick={() => navigate("/forgot-password")}
             style={{ marginTop: "10px" }}
           >
-            Change / Forgot Password
+             Forgot Password
           </button>
         </div>
 
