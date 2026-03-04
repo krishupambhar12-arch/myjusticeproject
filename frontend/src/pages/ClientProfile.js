@@ -373,14 +373,12 @@ const ClientProfile = () => {
                       src={imagePreview} 
                       alt="Profile Preview" 
                       className="profile-image"
-                      style={{ width: '150px', height: '150px', borderRadius: '50%', objectFit: 'cover' }}
                     />
                   ) : patient.profilePicture ? (
                     <img 
                       src={`http://localhost:5000/uploads/${patient.profilePicture}`} 
                       alt="Profile" 
                       className="profile-image"
-                      style={{ width: '150px', height: '150px', borderRadius: '50%', objectFit: 'cover' }}
                       onLoad={() => console.log('Profile image loaded successfully')}
                       onError={(e) => {
                         console.log('Failed to load profile image:', patient.profilePicture);
@@ -392,33 +390,10 @@ const ClientProfile = () => {
                       }}
                     />
                   ) : (
-                    <div className="profile-image-placeholder" style={{ 
-                      width: '150px', 
-                      height: '150px', 
-                      borderRadius: '50%', 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      justifyContent: 'center',
-                      backgroundColor: '#f0f0f0',
-                      fontSize: '48px',
-                      color: '#666'
-                    }}>
+                    <div className="profile-image-placeholder">
                       {patient.name ? patient.name.charAt(0).toUpperCase() : 'U'}
                     </div>
                   )}
-                  <div className="profile-image-placeholder" style={{ 
-                    display: 'none', 
-                    width: '150px', 
-                    height: '150px', 
-                    borderRadius: '50%', 
-                    alignItems: 'center', 
-                    justifyContent: 'center',
-                    backgroundColor: '#f0f0f0',
-                    fontSize: '48px',
-                    color: '#666'
-                  }}>
-                    {patient.name ? patient.name.charAt(0).toUpperCase() : 'U'}
-                  </div>
                 </div>
                 <input
                   type="file"

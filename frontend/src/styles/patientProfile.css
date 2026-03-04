@@ -34,6 +34,30 @@
   transform: translateY(-5px);
 }
 
+/* Profile Image Styling */
+.profile-image {
+  width: 107px;
+  height: 155px;
+  border-radius: 50%;
+  object-fit: cover;
+  /* border: 3px solid #fff; */
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.profile-image-placeholder {
+  width: 107px;
+  height: 155px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.2);
+  font-size: 36px;
+  color: #fff;
+  border: 3px solid #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
 .profile-card h2 {
   font-size: 22px;
   margin: 10px 0 5px;
