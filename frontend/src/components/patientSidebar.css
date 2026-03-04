@@ -1,0 +1,60 @@
+.patient-sidebar {
+  width: 230px;
+  min-height: 100vh;
+  background: var(--color-dark-purple);
+  color: var(--color-lightest);
+  padding: 20px;
+  font-family: var(--font-main);
+  position: fixed;
+  left: 0;
+  top: 0;
+  box-shadow: 2px 0 12px rgba(0, 0, 0, 0.15);
+}
+
+.patient-sidebar h2 {
+  margin: 20px 0;
+  font-size: 1.4rem;
+  color: var(--color-lightest);
+  text-align: center;
+}
+
+.patient-sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 20px;
+}
+
+.patient-sidebar ul li {
+  margin: 15px 0;
+}
+
+.patient-sidebar ul li a {
+  display: block;
+  padding: 10px 15px;
+  border-radius: 8px;
+  color: var(--color-lightest);
+  text-decoration: none;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.patient-sidebar ul li a:hover {
+  background: var(--color-muted-purple);
+}
+
+.patient-sidebar .logout-btn {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  background: var(--color-regular-purple);
+  color: var(--color-lightest);
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.patient-sidebar .logout-btn:hover {
+  background: var(--color-muted-purple);
+}

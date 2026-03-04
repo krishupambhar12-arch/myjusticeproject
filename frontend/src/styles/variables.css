@@ -1,0 +1,13 @@
+:root {
+  /* Core palette from uploaded image */
+  --color-lightest: #E6DDD0;   /* light beige background */
+  --color-soft-purple: #E6DDD0; /* soft light tone */
+  --color-muted-purple: #5C4750; /* muted accent */
+  --color-regular-purple: #5C4750; /* primary accent */
+  --color-dark-purple: #1E252B;   /* dark surface / headings */
+  --color-deep-purple: #1E252B;   /* deep accents */
+  --color-nearly-black: #1E252B;  /* darkest text */
+
+  --font-main: 'Roboto', sans-serif;
+}
+

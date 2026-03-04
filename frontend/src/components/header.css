@@ -1,0 +1,94 @@
+@import "../styles/variables.css";
+
+.site-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--color-dark-purple);
+  padding: 15px 50px;
+  color: #E6DDD0;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+/* Logo */
+.logo {
+  font-size: 24px;
+  font-weight: 700;
+  color: #E6DDD0;
+  letter-spacing: 1px;
+}
+
+/* Navigation */
+nav {
+  display: flex;
+  gap: 30px;
+  list-style: none;
+}
+
+nav li {
+  list-style: none;
+}
+
+nav a {
+  text-decoration: none;
+  font-size: 16px;
+  color: #E6DDD0;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+nav a:hover {
+  color: var(--color-soft-purple);
+}
+
+/* Login button */
+.login-btn {
+  padding: 8px 18px;
+  border: none;
+  border-radius: 6px;
+  background: #E6DDD0;
+  color: var(--color-dark-purple);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;  /* Remove underline */
+  display: inline-block;  /* Proper padding */
+}
+
+.login-btn:hover {
+  background: var(--color-nearly-black);
+  color: #E6DDD0;
+  text-decoration: none;  /* Ensure no underline on hover */
+}
+
+.header-actions {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+/* Icon styling */
+.dashboard-icon {
+  font-size: 28px;
+  color: #E6DDD0;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.dashboard-icon:hover {
+  color: var(--color-soft-purple);
+}
+
+/* Dashboard button / icon */
+.dashboard-btn {
+  font-size: 26px;
+  color: #E6DDD0;
+  transition: color 0.3s ease;
+  text-decoration: none;
+}
+
+.dashboard-btn:hover {
+  color: var(--color-soft-purple);
+}
