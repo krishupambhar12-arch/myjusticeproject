@@ -17,18 +17,43 @@ const ForgotPassword = () => {
     e.preventDefault();
     setMessage("");
 
-    if (!form.email || !form.newPassword || !form.confirmPassword) {
-      setMessage("Please fill all fields");
+    // Enhanced validation
+    if (!form.email) {
+      setMessage("❌ Please enter your email address");
+      return;
+    }
+
+    if (!form.newPassword) {
+      setMessage("❌ Please enter your new password");
+      return;
+    }
+
+    if (!form.confirmPassword) {
+      setMessage("❌ Please confirm your new password");
+      return;
+    }
+
+    if (form.newPassword.length < 6) {
+      setMessage("❌ Password must be at least 6 characters long");
       return;
     }
 
     if (form.newPassword !== form.confirmPassword) {
-      setMessage("New password and confirm password do not match");
+      setMessage("❌ New password and confirm password do not match");
+      return;
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(form.email)) {
+      setMessage("❌ Please enter a valid email address");
       return;
     }
 
     setLoading(true);
     try {
+      console.log('🔍 Sending forgot password request:', { email: form.email });
+      
       const res = await fetch(API.FORGOT_PASSWORD, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -36,19 +61,21 @@ const ForgotPassword = () => {
       });
 
       const data = await res.json();
+      console.log('🔍 Forgot password response:', data);
+      
       if (!res.ok) {
-        setMessage(data.message || "Failed to update password");
+        setMessage(data.message || "❌ Failed to update password");
         setLoading(false);
         return;
       }
 
-      setMessage(data.message || "Password updated successfully");
+      setMessage("✅ Password updated successfully! Redirecting to login...");
       setTimeout(() => {
         navigate("/login");
-      }, 1500);
+      }, 2000);
     } catch (error) {
       console.error("Forgot password error:", error);
-      setMessage("Something went wrong, please try again");
+      setMessage("❌ Something went wrong, please try again");
     } finally {
       setLoading(false);
     }
@@ -155,14 +182,14 @@ const ForgotPassword = () => {
           )}
 
           <div className="form-group">
-            <label htmlFor="email">Email</label>
+            <label htmlFor="email">Email Address</label>
             <input
               type="email"
               id="email"
               name="email"
               value={form.email}
               onChange={handleChange}
-              placeholder="Enter your email"
+              placeholder="Enter your registered email address"
               required
             />
           </div>
@@ -175,8 +202,9 @@ const ForgotPassword = () => {
               name="newPassword"
               value={form.newPassword}
               onChange={handleChange}
-              placeholder="Enter your new password"
+              placeholder="Enter your new password (min. 6 characters)"
               required
+              minLength="6"
             />
           </div>
 
@@ -188,8 +216,9 @@ const ForgotPassword = () => {
               name="confirmPassword"
               value={form.confirmPassword}
               onChange={handleChange}
-              placeholder="Confirm your new password"
+              placeholder="Re-enter your new password"
               required
+              minLength="6"
             />
           </div>
 

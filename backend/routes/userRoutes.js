@@ -6,6 +6,22 @@ const Appointment = require("../models/Appointment");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const auth = require("../middleware/auth");
+const multer = require("multer");
+
+// Configure multer for file uploads
+const upload = multer({
+  dest: "uploads/",
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith("image/")) {
+      cb(null, true);
+    } else {
+      cb(new Error("Only image files are allowed"));
+    }
+  },
+});
 
 // Generate JWT Token
 const generateToken = (id, role) => {
@@ -105,6 +121,7 @@ router.post("/register", async (req, res) => {
       }
 
       // Check if attorney exists with this email
+      const existingAttorney = await Attorney.findOne({ attorneyEmail: email });
       if (existingAttorney) {
         console.log("⚠️ Found Attorney record for non-attorney email - deleting it");
         await Attorney.deleteOne({ attorneyEmail: email });
@@ -259,6 +276,10 @@ router.get("/profile", auth, async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        phone: user.phone,
+        address: user.address,
+        dateOfBirth: user.dateOfBirth,
+        gender: user.gender,
         profilePicture: user.profilePicture,
         isSocialLogin: user.isSocialLogin,
         provider: user.provider
@@ -266,6 +287,64 @@ router.get("/profile", auth, async (req, res) => {
     });
   } catch (error) {
     console.error("Profile error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// ===== UPDATE USER PROFILE =====
+router.put("/profile", auth, upload.single("profilePicture"), async (req, res) => {
+  try {
+    const userId = req.userId;
+    const { name, phone, address, dateOfBirth, gender } = req.body;
+    
+    console.log("🔍 Profile update request:", { userId, name, phone, address, dateOfBirth, gender });
+    console.log("🔍 File received:", req.file ? req.file.filename : 'No file');
+    console.log("🔍 Request body keys:", Object.keys(req.body));
+    
+    // Find user
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    console.log("🔍 User found:", user.email);
+
+    // Update user fields only if they are provided
+    if (name !== undefined && name !== '') user.name = name;
+    if (phone !== undefined && phone !== '') user.phone = phone;
+    if (address !== undefined && address !== '') user.address = address;
+    if (dateOfBirth !== undefined && dateOfBirth !== '') user.dateOfBirth = new Date(dateOfBirth);
+    if (gender !== undefined && gender !== '') user.gender = gender;
+    
+    // Update profile picture if uploaded
+    if (req.file) {
+      user.profilePicture = req.file.filename;
+      console.log("📸 Profile picture updated:", req.file.filename);
+    } else {
+      console.log("📸 No profile picture uploaded");
+    }
+
+    await user.save();
+    console.log("✅ Profile updated successfully");
+
+    res.json({
+      message: "Profile updated successfully",
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        phone: user.phone,
+        address: user.address,
+        dateOfBirth: user.dateOfBirth,
+        gender: user.gender,
+        profilePicture: user.profilePicture,
+        isSocialLogin: user.isSocialLogin,
+        provider: user.provider
+      }
+    });
+  } catch (error) {
+    console.error("❌ Profile update error:", error);
     res.status(500).json({ message: "Server error" });
   }
 });
@@ -392,6 +471,43 @@ router.get("/test-user-model", async (req, res) => {
       message: "User model test failed",
       error: error.message 
     });
+  }
+});
+
+// ===== USER FORGOT PASSWORD =====
+router.post("/forgot-password", async (req, res) => {
+  try {
+    const { email, newPassword } = req.body;
+
+    console.log("🔍 User forgot password request:", { email, newPasswordLength: newPassword?.length });
+
+    // Validate input
+    if (!email || !newPassword) {
+      return res.status(400).json({ message: "Email and new password are required" });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({ message: "Password must be at least 6 characters long" });
+    }
+
+    // Find user by email in User model
+    const user = await User.findOne({ email: email });
+    if (!user) {
+      return res.status(404).json({ message: "User not found with this email" });
+    }
+
+    // Update password - User model will handle hashing via pre-save hook
+    user.password = newPassword;
+    await user.save();
+
+    console.log("✅ User password updated successfully for:", email);
+
+    res.status(200).json({
+      message: "Password updated successfully"
+    });
+  } catch (error) {
+    console.error("❌ User forgot password error:", error);
+    res.status(500).json({ message: "Server error" });
   }
 });
 

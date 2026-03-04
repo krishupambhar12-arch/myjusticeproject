@@ -78,6 +78,13 @@ const Register = () => {
           popup.close();
           window.removeEventListener('message', messageHandler);
 
+          // Check if user is a Client - only allow Client users
+          const userRole = event.data.user.role;
+          if (userRole !== "Client") {
+            alert('❌ Access denied. This registration is for clients only. Attorneys should use the attorney registration page.');
+            return;
+          }
+
           // Save token and role
           localStorage.setItem('token', event.data.token);
           localStorage.setItem('role', event.data.user.role);
@@ -86,16 +93,8 @@ const Register = () => {
           const userName = event.data.user.name || event.data.user.email;
           alert(`🎉 Welcome, ${userName}! Registration successful.`);
 
-          // Navigate based on role
-          if (event.data.user.role === 'Attorney') {
-            navigate('/attorney/dashboard');
-          } else if (event.data.user.role === 'Client') {
-            navigate('/client/dashboard');
-          } else if (event.data.user.role === 'Admin') {
-            navigate('/admin/dashboard');
-          } else {
-            navigate('/');
-          }
+          // Navigate to client dashboard only
+          navigate('/client/dashboard');
         } else if (event.data.type === 'social-auth-error') {
           popup.close();
           window.removeEventListener('message', messageHandler);
@@ -207,8 +206,7 @@ const Register = () => {
           {/* Home Arrow Button */}
           <Link to="/" className="home-arrow-btn">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M10 19l-7-7m0 0l7-7m0 0"/>
-              <path d="M3 12h18"/>
+              <path d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
             </svg>
             {/* <span>Home</span> */}
           </Link>
@@ -353,7 +351,7 @@ const Register = () => {
                 </svg>
               ) : (
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8-11-8z"/>
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
                   <circle cx="12" cy="12" r="3"/>
                 </svg>
               )}
@@ -388,7 +386,7 @@ const Register = () => {
                 </svg>
               ) : (
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8-11-8z"/>
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
                   <circle cx="12" cy="12" r="3"/>
                 </svg>
               )}

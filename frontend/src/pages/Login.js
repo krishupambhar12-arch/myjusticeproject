@@ -66,6 +66,13 @@ const Login = () => {
           popup.close();
           window.removeEventListener('message', messageHandler);
 
+          // Check if user is a Client - only allow Client users
+          const userRole = event.data.user.role;
+          if (userRole !== "Client") {
+            alert('❌ Access denied. This login is for clients only. Attorneys should use the attorney login page.');
+            return;
+          }
+
           // Save token and role
           localStorage.setItem('token', event.data.token);
           localStorage.setItem('role', event.data.user.role);
@@ -74,16 +81,8 @@ const Login = () => {
           const userName = event.data.user.name || event.data.user.email;
           alert(`🎉 Welcome, ${userName}! Login successful.`);
 
-          // Navigate based on role
-          if (event.data.user.role === 'Attorney') {
-            navigate('/attorney/dashboard');
-          } else if (event.data.user.role === 'Client') {
-            navigate('/client/dashboard');
-          } else if (event.data.user.role === 'Admin') {
-            navigate('/admin/dashboard');
-          } else {
-            navigate('/');
-          }
+          // Navigate to client dashboard only
+          navigate('/client/dashboard');
         } else if (event.data.type === 'social-auth-error') {
           popup.close();
           window.removeEventListener('message', messageHandler);
@@ -199,6 +198,14 @@ const Login = () => {
         return;
       }
 
+      // Check if user is a Client - only allow Client users to login
+      const userRole = data.user ? data.user.role : data.attorney.role;
+      if (userRole !== "Client") {
+        setMessage("❌ This login is for clients only. Attorneys should use the attorney login page.");
+        setLoading(false);
+        return;
+      }
+
       // Show success message
       setMessage("✅ Login Successful! Redirecting...");
       
@@ -226,21 +233,17 @@ const Login = () => {
 
       // Delay navigation to show success message
       setTimeout(() => {
-        // role wise navigation
+        // Only allow Client users - role wise navigation
         const userRole = data.user ? data.user.role : data.attorney.role;
         
-        if (userRole === "Attorney") {
-          console.log('Navigating to attorney dashboard');
-          navigate("/attorney/dashboard");
-        } else if (userRole === "Client") {
+        if (userRole === "Client") {
           console.log('Navigating to client dashboard');
           navigate("/client/dashboard");
-        } else if (userRole === "Admin") {
-          console.log('Navigating to admin dashboard');
-          navigate("/admin/dashboard");
         } else {
-          console.log('Navigating to home');
-          navigate("/");
+          console.log('Invalid role for user login:', userRole);
+          setMessage("❌ Access denied. This login is for clients only.");
+          localStorage.removeItem("token");
+          localStorage.removeItem("role");
         }
       }, 1500);
 
@@ -266,8 +269,7 @@ const Login = () => {
           {/* Home Arrow Button */}
           <Link to="/" className="home-arrow-btn">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M10 19l-7-7m0 0l7-7m0 0"/>
-              <path d="M3 12h18"/>
+              <path d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
             </svg>
             {/* <span>Home</span> */}
           </Link>

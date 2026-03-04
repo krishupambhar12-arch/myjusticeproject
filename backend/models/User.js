@@ -5,10 +5,11 @@ const userSchema = new mongoose.Schema({
      name: { type: String, required: true },
      email: { type: String, required: true, unique: true },
      password: { type: String, required: true },
-    //  gender: { type: String, enum: ["Male", "Female", "Other"] },
-    //  phone: { type: String },
-    //  address: { type: String },
-    //  dateOfBirth: { type: Date }, // Add date of birth field
+     gender: { type: String, enum: ["Male", "Female", "Other"] },
+     phone: { type: String },
+     address: { type: String },
+     dateOfBirth: { type: Date }, // Add date of birth field
+     
      role: { 
        type: String, 
        enum: ["Client", "Attorney", "Admin"], 
