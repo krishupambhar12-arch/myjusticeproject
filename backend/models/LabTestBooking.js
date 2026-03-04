@@ -6,7 +6,11 @@ const labTestBookingSchema = new mongoose.Schema({
   date: { type: Date, required: true },
   time: { type: String, required: true },
   notes: { type: String, default: "" },
-  status: { type: String, default: "Pending" } // Pending, Confirmed, Completed, Cancelled
+  status: { type: String, default: "Pending" }, // Pending, Confirmed, Completed, Cancelled
+  // Soft delete fields
+  isActive: { type: Boolean, default: true },
+  deletedAt: { type: Date, default: null },
+  deletionReason: { type: String, default: null }
 }, { timestamps: true });
 
 module.exports = mongoose.model("LabTestBooking", labTestBookingSchema);

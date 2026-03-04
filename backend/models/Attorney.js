@@ -54,7 +54,11 @@ const attorneySchema = new mongoose.Schema({
   profilePicture: {
     type: String,
     default: null
-  }
+  },
+  // Soft delete fields
+  isActive: { type: Boolean, default: true },
+  deletedAt: { type: Date, default: null },
+  deletionReason: { type: String, default: null }
 }, { timestamps: true });
 
 // Pre-save hook to hash password

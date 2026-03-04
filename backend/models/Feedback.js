@@ -38,7 +38,11 @@ const feedbackSchema = new mongoose.Schema({
   },
   responded_at: {
     type: Date
-  }
+  },
+  // Soft delete fields
+  isActive: { type: Boolean, default: true },
+  deletedAt: { type: Date, default: null },
+  deletionReason: { type: String, default: null }
 }, { timestamps: true });
 
 module.exports = mongoose.model("Feedback", feedbackSchema);

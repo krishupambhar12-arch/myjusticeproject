@@ -24,7 +24,11 @@ const consultationMessageSchema = new mongoose.Schema({
   read: {
     type: Boolean,
     default: false
-  }
+  },
+  // Soft delete fields
+  isActive: { type: Boolean, default: true },
+  deletedAt: { type: Date, default: null },
+  deletionReason: { type: String, default: null }
 }, { timestamps: true });
 
 module.exports = mongoose.model("ConsultationMessage", consultationMessageSchema);

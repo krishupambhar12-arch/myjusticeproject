@@ -7,7 +7,11 @@ const appointmentSchema = new mongoose.Schema({
   time: { type: String, required: true },
   symptoms: { type: String, default: "" },
   notes: { type: String, default: "" },
-  status: { type: String, default: "Pending" }
+  status: { type: String, default: "Pending" },
+  // Soft delete fields
+  isActive: { type: Boolean, default: true },
+  deletedAt: { type: Date, default: null },
+  deletionReason: { type: String, default: null }
 }, { timestamps: true });
 
 module.exports = mongoose.model("Appointment", appointmentSchema);

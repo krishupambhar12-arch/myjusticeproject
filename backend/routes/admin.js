@@ -11,11 +11,11 @@ const Consultation = require("../models/Consultation");
 const ConsultationMessage = require("../models/ConsultationMessage");
 const Service = require("../models/Service");
 const Code = require("../models/Code");
+const multer = require("multer");
+const path = require("path");
 const auth = require("../middleware/auth");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const multer = require("multer");
-const path = require("path");
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
@@ -127,14 +127,14 @@ router.get("/dashboard", auth, async (req, res) => {
       return res.status(403).json({ message: "Only admins can access dashboard" });
     }
 
-    const totalUsers = await User.countDocuments({ role: "Client" });
-    const totalAttorneys = await Attorney.countDocuments();
-    const totalAppointments = await Appointment.countDocuments();
-    const pendingAppointments = await Appointment.countDocuments({ status: "Pending" });
-    const confirmedAppointments = await Appointment.countDocuments({ status: "Confirmed" });
-    const completedAppointments = await Appointment.countDocuments({ status: "Completed" });
-    const expiredAppointments = await Appointment.countDocuments({ status: "Expired" });
-    const totalFeedback = await Feedback.countDocuments();
+    const totalUsers = await User.countDocuments({ isActive: true });
+    const totalAttorneys = await Attorney.countDocuments({ isActive: true });
+    const totalAppointments = await Appointment.countDocuments({ isActive: true });
+    const pendingAppointments = await Appointment.countDocuments({ isActive: true, status: "Pending" });
+    const confirmedAppointments = await Appointment.countDocuments({ isActive: true, status: "Confirmed" });
+    const completedAppointments = await Appointment.countDocuments({ isActive: true, status: "Completed" });
+    const expiredAppointments = await Appointment.countDocuments({ isActive: true, status: "Expired" });
+    const totalFeedback = await Feedback.countDocuments({ isActive: true });
 
     res.json({
       totalUsers,
@@ -495,6 +495,298 @@ router.put("/codes/:id/restore", auth, async (req, res) => {
     });
   } catch (error) {
     console.error("Restore code error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// ===== ADMIN SERVICES ROUTES =====
+
+// Multer setup for service icon uploads
+const serviceStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads/services/"); // Create uploads/services directory
+  },
+  filename: function (req, file, cb) {
+    cb(null, "service_" + Date.now() + path.extname(file.originalname));
+  },
+});
+
+const serviceUpload = multer({ 
+  storage: serviceStorage,
+  limits: {
+    fileSize: 500 * 1024 * 1024 // 500MB limit
+  },
+  fileFilter: function (req, file, cb) {
+    // Accept images only
+    if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
+      return cb(new Error('Only image files are allowed!'), false);
+    }
+    cb(null, true);
+  }
+});
+
+// GET All Services (Admin)
+router.get("/services", auth, async (req, res) => {
+  try {
+    console.log("🔍 Admin fetching all services");
+    
+    const services = await Service.find({ is_active: true })
+      .select('service_name description price category icon icon_file is_active created_at updated_at')
+      .sort({ created_at: -1 })
+      .lean();
+
+    // Transform _id to id for frontend consistency
+    const transformedServices = services.map(service => ({
+      id: service._id,
+      service_name: service.service_name,
+      description: service.description,
+      price: service.price,
+      category: service.category,
+      icon: service.icon,
+      icon_file: service.icon_file,
+      is_active: service.is_active,
+      created_at: service.created_at,
+      updated_at: service.updated_at
+    }));
+
+    console.log(`🔍 Found ${transformedServices.length} active services`);
+    res.json({ services: transformedServices });
+  } catch (error) {
+    console.error("Get admin services error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// CREATE Service (Admin)
+router.post("/services", auth, serviceUpload.single("iconFile"), async (req, res) => {
+  try {
+    console.log("🔍 Admin creating service");
+    console.log("🔍 Request body:", req.body);
+    console.log("🔍 Uploaded file:", req.file);
+    
+    const { service_name, description, category, icon } = req.body;
+    
+    // Validation
+    if (!service_name || service_name.trim().length === 0) {
+      return res.status(400).json({ message: "Service name is required" });
+    }
+    
+    if (service_name.trim().length < 3) {
+      return res.status(400).json({ message: "Service name must be at least 3 characters" });
+    }
+    
+    if (service_name.trim().length > 100) {
+      return res.status(400).json({ message: "Service name cannot exceed 100 characters" });
+    }
+    
+    if (description && description.length > 500) {
+      return res.status(400).json({ message: "Description cannot exceed 500 characters" });
+    }
+
+    // Create service
+    const newService = new Service({
+      service_name: service_name.trim(),
+      description: description ? description.trim() : "",
+      category: category || "Legal Service",
+      icon: icon || "Custom",
+      icon_file: req.file ? req.file.filename : null
+    });
+
+    await newService.save();
+    console.log("✅ Service created successfully:", newService._id);
+
+    res.status(201).json({
+      message: "Service created successfully",
+      service: {
+        id: newService._id,
+        service_name: newService.service_name,
+        description: newService.description,
+        category: newService.category,
+        icon: newService.icon,
+        icon_file: newService.icon_file,
+        is_active: newService.is_active,
+        created_at: newService.created_at,
+        updated_at: newService.updated_at
+      }
+    });
+  } catch (error) {
+    console.error("Create service error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// UPDATE Service (Admin)
+router.put("/services/:id", auth, serviceUpload.single("iconFile"), async (req, res) => {
+  try {
+    console.log("🔍 Admin updating service:", req.params.id);
+    
+    const { service_name, description, category, icon } = req.body;
+    const serviceId = req.params.id;
+    
+    // Find service
+    const service = await Service.findById(serviceId);
+    if (!service) {
+      return res.status(404).json({ message: "Service not found" });
+    }
+    
+    // Validation
+    if (!service_name || service_name.trim().length === 0) {
+      return res.status(400).json({ message: "Service name is required" });
+    }
+    
+    if (service_name.trim().length < 3) {
+      return res.status(400).json({ message: "Service name must be at least 3 characters" });
+    }
+    
+    if (service_name.trim().length > 100) {
+      return res.status(400).json({ message: "Service name cannot exceed 100 characters" });
+    }
+    
+    if (description && description.length > 500) {
+      return res.status(400).json({ message: "Description cannot exceed 500 characters" });
+    }
+
+    // Update service
+    service.service_name = service_name.trim();
+    service.description = description ? description.trim() : "";
+    service.category = category || "Legal Service";
+    service.icon = icon || "Custom";
+    
+    // Update icon file if new one uploaded
+    if (req.file) {
+      service.icon_file = req.file.filename;
+    }
+    
+    service.updated_at = new Date();
+    await service.save();
+    
+    console.log("✅ Service updated successfully:", service._id);
+
+    res.json({
+      message: "Service updated successfully",
+      service: {
+        id: service._id,
+        service_name: service.service_name,
+        description: service.description,
+        category: service.category,
+        icon: service.icon,
+        icon_file: service.icon_file,
+        is_active: service.is_active,
+        created_at: service.created_at,
+        updated_at: service.updated_at
+      }
+    });
+  } catch (error) {
+    console.error("Update service error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// DELETE Service (Admin - SOFT DELETE)
+router.delete("/services/:id", auth, async (req, res) => {
+  try {
+    console.log("🔍 Admin deleting service:", req.params.id);
+    
+    const serviceId = req.params.id;
+    
+    // Find service
+    const service = await Service.findById(serviceId);
+    if (!service) {
+      return res.status(404).json({ message: "Service not found" });
+    }
+    
+    // Soft delete - mark as inactive instead of deleting
+    service.is_active = false;
+    service.deletedAt = new Date();
+    service.deletionReason = "Admin soft delete";
+    await service.save();
+    
+    console.log("✅ Service marked as inactive (not deleted):", service._id);
+
+    res.json({ 
+      message: "Service deleted successfully. Data preserved in database.",
+      service: {
+        id: service._id,
+        service_name: service.service_name,
+        category: service.category,
+        status: "inactive",
+        deletedAt: service.deletedAt
+      }
+    });
+  } catch (error) {
+    console.error("Delete service error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// GET DELETED/INACTIVE SERVICES (FOR ADMIN REFERENCE)
+router.get("/services/deleted", auth, async (req, res) => {
+  try {
+    if (req.userRole !== "Admin") {
+      return res.status(403).json({ message: "Only admins can access deleted services" });
+    }
+
+    const services = await Service.find({ is_active: false }).sort({ deletedAt: -1 });
+    
+    const formattedServices = services.map(service => ({
+      id: service._id,
+      service_name: service.service_name,
+      description: service.description,
+      price: service.price,
+      category: service.category,
+      icon: service.icon,
+      icon_file: service.icon_file,
+      deletedAt: service.deletedAt,
+      deletionReason: service.deletionReason,
+      created_at: service.created_at,
+      updated_at: service.updated_at
+    }));
+
+    res.json({ deletedServices: formattedServices });
+  } catch (error) {
+    console.error("Get deleted services error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// RESTORE DELETED SERVICE
+router.put("/services/:id/restore", auth, async (req, res) => {
+  try {
+    if (req.userRole !== "Admin") {
+      return res.status(403).json({ message: "Only admins can restore services" });
+    }
+
+    const serviceId = req.params.id;
+    
+    // Find the inactive service
+    const service = await Service.findById(serviceId);
+    if (!service) {
+      return res.status(404).json({ message: "Service not found" });
+    }
+
+    if (service.is_active) {
+      return res.status(400).json({ message: "Service is already active" });
+    }
+
+    // Restore the service
+    service.is_active = true;
+    service.deletedAt = null;
+    service.deletionReason = null;
+    await service.save();
+
+    console.log("✅ Service restored successfully:", service._id);
+
+    res.json({ 
+      message: "Service restored successfully",
+      service: {
+        id: service._id,
+        service_name: service.service_name,
+        category: service.category,
+        status: "active"
+      }
+    });
+  } catch (error) {
+    console.error("Restore service error:", error);
     res.status(500).json({ message: "Server error" });
   }
 });

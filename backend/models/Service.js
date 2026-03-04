@@ -34,6 +34,14 @@ const serviceSchema = new mongoose.Schema({
     type: Boolean,
     default: true
   },
+  deletedAt: {
+    type: Date,
+    default: null
+  },
+  deletionReason: {
+    type: String,
+    default: null
+  },
   created_at: {
     type: Date,
     default: Date.now

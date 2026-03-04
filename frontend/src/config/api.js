@@ -65,6 +65,8 @@ export const API = {
   ADMIN_CREATE_SERVICE: `${BASE_URL}/admin/services`,
   ADMIN_UPDATE_SERVICE: `${BASE_URL}/admin/services`,
   ADMIN_DELETE_SERVICE: `${BASE_URL}/admin/services`,
+  ADMIN_SERVICES_DELETED: `${BASE_URL}/admin/services/deleted`,
+  ADMIN_SERVICES_RESTORE: `${BASE_URL}/admin/services`,
   // Public Services API
   ALL_SERVICES: `${BASE_URL}/services`,
   // Consultation APIs
