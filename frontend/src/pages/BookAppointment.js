@@ -22,11 +22,11 @@ const BookAppointment = () => {
 
   const fetchDoctorDetails = useCallback(async () => {
     try {
-      const res = await fetch(API.ALL_DOCTORS);
+      const res = await fetch(API.ALL_ATTORNEYS);
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to load attorney details");
 
-      const doctorData = data.doctors?.find(d => d.id === doctorId || d._id === doctorId);
+      const doctorData = data.attorneys?.find(d => d.id === doctorId || d._id === doctorId);
       if (doctorData) {
         setDoctor(doctorData);
       } else {
