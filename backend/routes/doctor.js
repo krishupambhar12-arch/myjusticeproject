@@ -430,7 +430,7 @@ router.get("/dashboard", auth, async (req, res) => {
 router.get("/appointments", auth, async (req, res) => {
   try {
     // Find attorney profile
-    const attorney = await Attorney.findOne({ userId: req.userId }).lean();
+    const attorney = await Attorney.findById(req.userId).lean();
     if (!attorney) return res.status(404).json({ message: "Attorney profile not found" });
 
     // Get all appointments for this attorney
@@ -478,9 +478,8 @@ router.get("/all", async (req, res) => {
       query.specialization = { $regex: specialization, $options: 'i' };
     }
     
-    // Get all attorneys with populated user data
+    // Get all attorneys
     let attorneys = await Attorney.find(query)
-      .populate('userId', 'name email phone')
       .sort({ createdAt: -1 })
       .lean();
     
@@ -488,7 +487,7 @@ router.get("/all", async (req, res) => {
     if (search) {
       const searchRegex = new RegExp(search, 'i');
       attorneys = attorneys.filter(attorney => 
-        attorney.userId?.name?.match(searchRegex) ||
+        attorney.attorneyName?.match(searchRegex) ||
         attorney.specialization?.match(searchRegex) ||
         attorney.qualification?.match(searchRegex)
       );
@@ -497,14 +496,14 @@ router.get("/all", async (req, res) => {
     // Format for frontend
     const formattedAttorneys = attorneys.map(attorney => ({
       id: attorney._id,
-      name: attorney.userId?.name || "Attorney Unknown",
-      email: attorney.userId?.email || "",
-      phone: attorney.userId?.phone || "",
+      name: attorney.attorneyName || "Attorney Unknown",
+      email: attorney.attorneyEmail || "",
+      phone: attorney.attorneyPhone || "",
       specialization: attorney.specialization,
       qualification: attorney.qualification,
       experience: attorney.experience,
       fees: attorney.fees,
-      profile_pic: attorney.profile_pic,
+      profile_pic: attorney.profilePicture,
       rating: 4.5, // You can add rating system later
       available: true
     }));
@@ -541,7 +540,7 @@ router.post("/book-appointment", auth, async (req, res) => {
 
     // Check if user is trying to book appointment with themselves (if they are an attorney)
     if (req.userRole === "Attorney") {
-      const userAttorney = await Attorney.findOne({ userId: req.userId });
+      const userAttorney = await Attorney.findById(req.userId);
       if (userAttorney && userAttorney._id.toString() === doctor_id) {
         return res.status(400).json({ message: "Attorneys cannot book appointments with themselves" });
       }
@@ -599,7 +598,7 @@ router.get("/consultations", auth, async (req, res) => {
     }
 
     // Find attorney by userId
-    const attorney = await Attorney.findOne({ userId: req.userId });
+    const attorney = await Attorney.findById(req.userId);
     if (!attorney) {
       return res.status(404).json({ message: "Attorney profile not found" });
     }
@@ -645,7 +644,7 @@ router.post("/consultation/:consultationId/message", auth, async (req, res) => {
     }
 
     // Find attorney by userId
-    const attorney = await Attorney.findOne({ userId: req.userId });
+    const attorney = await Attorney.findById(req.userId);
     if (!attorney) {
       return res.status(404).json({ message: "Attorney profile not found" });
     }
@@ -699,7 +698,7 @@ router.get("/consultation/:consultationId/messages", auth, async (req, res) => {
     const { consultationId } = req.params;
 
     // Find attorney by userId
-    const attorney = await Attorney.findOne({ userId: req.userId });
+    const attorney = await Attorney.findById(req.userId);
     if (!attorney) {
       return res.status(404).json({ message: "Attorney profile not found" });
     }
