@@ -294,12 +294,12 @@ const AdminAppointments = () => {
           <div className="appointments-header">
             <h2>Manage Appointments</h2>
             <div className="header-buttons">
-              <button 
+              {/* <button 
                 onClick={() => setShowBookModal(true)}
                 className="add-appointment-btn"
               >
                 + Add Appointment
-              </button>
+              </button> */}
             <button 
               onClick={markExpiredAppointments}
               className="mark-expired-btn"

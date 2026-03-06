@@ -6,7 +6,7 @@ import { API } from "../config/api";
 import "../styles/bookAppointment.css";
 
 const BookAppointment = () => {
-  const { doctorId } = useParams();
+  const { attorneyId } = useParams();
   const navigate = useNavigate();
   const [doctor, setDoctor] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -34,7 +34,7 @@ const BookAppointment = () => {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to load attorney details");
 
-      const doctorData = data.attorneys?.find(d => d.id === doctorId || d._id === doctorId);
+      const doctorData = data.attorneys?.find(d => d.id === attorneyId || d._id === attorneyId);
       if (doctorData) {
         setDoctor(doctorData);
       } else {
@@ -46,7 +46,7 @@ const BookAppointment = () => {
     } finally {
       setLoading(false);
     }
-  }, [doctorId]);
+  }, [attorneyId]);
 
   useEffect(() => {
     // Check if user is logged in
@@ -118,7 +118,7 @@ const BookAppointment = () => {
       }
 
       const appointmentData = {
-        doctor_id: doctorId,
+        doctor_id: attorneyId,
         date: formData.date,
         time: formData.time,
         subject: formData.subject,
