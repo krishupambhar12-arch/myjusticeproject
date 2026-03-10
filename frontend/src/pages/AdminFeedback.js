@@ -20,7 +20,7 @@ const AdminFeedback = () => {
     deleting: null
   });
 
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('token');         
 
   const fetchFeedbacks = useCallback(async () => {
     setLoading(true);
